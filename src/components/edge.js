@@ -530,14 +530,21 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   edgeOverlayRef: React.ElementRef<typeof Edge>;
+  handleTextRef: React.ElementRef<any>;
 
   constructor(props: IEdgeProps) {
     super(props);
     this.edgeOverlayRef = React.createRef();
+    this.handleTextRef = React.createRef();
+
+    this.state = {
+      handleTextRenderedWidth: 120,
+    };
   }
 
   getEdgeHandleTranslation = () => {
     const { data } = this.props;
+    const { handleTextRenderedWidth } = this.state;
 
     let pathDescription = this.getPathDescription(data);
 
@@ -545,14 +552,34 @@ class Edge extends React.Component<IEdgeProps> {
     pathDescription = pathDescription.replace(/L/, ',');
     const pathDescriptionArr = pathDescription.split(',');
 
-    // [0] = src x, [1] = src y
-    // [2] = trg x, [3] = trg y
-    const diffX =
-      parseFloat(pathDescriptionArr[2]) - parseFloat(pathDescriptionArr[0]);
-    const diffY =
-      parseFloat(pathDescriptionArr[3]) - parseFloat(pathDescriptionArr[1]);
-    const x = parseFloat(pathDescriptionArr[0]) + diffX / 2;
-    const y = parseFloat(pathDescriptionArr[1]) + diffY / 2;
+    const srcX = parseFloat(pathDescriptionArr[0]);
+    const srcY = parseFloat(pathDescriptionArr[1]);
+    const trgX = parseFloat(pathDescriptionArr[2]);
+    const trgY = parseFloat(pathDescriptionArr[3]);
+
+    const diffX = trgX - srcX;
+    const diffY = trgY - srcY;
+
+    const xCentre = srcX + diffX / 2;
+    const yCentre = srcY + diffY / 2;
+
+    const BUFFER_LENGTH = 15;
+
+    if (Math.abs(diffY) < 0.05) {
+      return `translate(${xCentre}, ${yCentre - BUFFER_LENGTH})`;
+    }
+
+    if (Math.abs(diffX) < 0.05) {
+      const xOff = handleTextRenderedWidth / 2 + BUFFER_LENGTH;
+
+      return `translate(${xCentre + xOff}, ${yCentre})`;
+    }
+
+    // const m = diffY / diffX;
+    // const c = m > 0 ? BUFFER_LENGTH : -BUFFER_LENGTH;
+
+    const y = yCentre; // + m * handleTextRenderedWidth + c;
+    const x = xCentre;
 
     return `translate(${x}, ${y})`;
   };
@@ -580,6 +607,26 @@ class Edge extends React.Component<IEdgeProps> {
 
     return [`rotate(${theta})`, rotated];
   };
+
+  componentDidUpdate() {
+    this.calcHandleTextWidth();
+  }
+
+  componentDidMount() {
+    this.calcHandleTextWidth();
+  }
+
+  calcHandleTextWidth() {
+    const handleTextSvgNode = this.handleTextRef.current;
+
+    if (handleTextSvgNode) {
+      const bbox = handleTextSvgNode.getBBox();
+
+      if (bbox.width != this.state.handleTextRenderedWidth) {
+        this.setState({ handleTextRenderedWidth: bbox.width });
+      }
+    }
+  }
 
   getEdgeHandleTransformation = () => {
     const translation = this.getEdgeHandleTranslation();
@@ -639,6 +686,7 @@ class Edge extends React.Component<IEdgeProps> {
         textAnchor="middle"
         alignmentBaseline="central"
         transform={`${this.getEdgeHandleTranslation()}`}
+        ref={this.handleTextRef}
       >
         {data.handleText}
       </text>
