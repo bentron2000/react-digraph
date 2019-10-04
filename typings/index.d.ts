@@ -14,47 +14,47 @@
   limitations under the License.
 */
 
-declare module 'react-digraph' {
+declare module 'react-digraph-bentron' {
   export type INode = {
-    title: string;
-    x?: number | null;
-    y?: number | null;
-    type?: string;
-    subtype?: string | null;
-    [key: string]: any;
-  };
+    title: string
+    x?: number | null
+    y?: number | null
+    type?: string
+    subtype?: string | null
+    [key: string]: any
+  }
 
   export type IPoint = {
-    x: number;
-    y: number;
-  };
+    x: number
+    y: number
+  }
 
   export type INodeComponentProps = {
-    height: number,
-    width: number,
-    x: number,
-    y: number,
-    xlinkHref: string,
-    className: string,
+    height: number
+    width: number
+    x: number
+    y: number
+    xlinkHref: string
+    className: string
     'data-index': number
-  };
+  }
 
   export type INodeProps = {
-    data: INode;
-    id: string;
-    nodeTypes: any; // TODO: make a nodeTypes interface
-    nodeSubtypes: any; // TODO: make a nodeSubtypes interface
-    opacity?: number;
-    nodeKey: string;
-    nodeSize?: number;
-    nodeHeight?: number;
-    nodeWidth?: number;
-    onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
-    onNodeMouseLeave: (event: any, data: any) => void;
-    onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
-    onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
-    onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
-    onOverrideableClick: (event: any) => boolean;
+    data: INode
+    id: string
+    nodeTypes: any // TODO: make a nodeTypes interface
+    nodeSubtypes: any // TODO: make a nodeSubtypes interface
+    opacity?: number
+    nodeKey: string
+    nodeSize?: number
+    nodeHeight?: number
+    nodeWidth?: number
+    onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void
+    onNodeMouseLeave: (event: any, data: any) => void
+    onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void
+    onNodeSelected: (data: any, id: string, shiftKey: boolean) => void
+    onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void
+    onOverrideableClick: (event: any) => boolean
     renderNode?: (
       nodeRef: any,
       data: any,
@@ -62,88 +62,88 @@ declare module 'react-digraph' {
       selected: boolean,
       hovered: boolean,
       props: INodeComponentProps
-    ) => any;
+    ) => any
     renderNodeText?: (
       data: any,
       id: string | number,
       isSelected: boolean
-    ) => any;
-    isSelected: boolean;
-    layoutEngine?: any;
-    viewWrapperElem: HTMLDivElement;
-  };
+    ) => any
+    isSelected: boolean
+    layoutEngine?: any
+    viewWrapperElem: HTMLDivElement
+  }
 
-  export const Node: React.ComponentClass<INodeProps>;
+  export const Node: React.ComponentClass<INodeProps>
 
   export type IEdge = {
-    source: string;
-    target: string;
-    type?: string;
-    handleText?: string;
-    handleTooltipText?: string;
-    [key: string]: any;
-  };
+    source: string
+    target: string
+    type?: string
+    handleText?: string
+    handleTooltipText?: string
+    [key: string]: any
+  }
 
   export type ITargetPosition = {
-    x: number;
-    y: number;
-  };
+    x: number
+    y: number
+  }
 
   export type IEdgeProps = {
-    data: IEdge;
-    edgeTypes: any; // TODO: create an edgeTypes interface
-    edgeHandleSize?: number;
-    sourceNode: INode | null;
-    targetNode: INode | ITargetPosition;
-    isSelected: boolean;
-    nodeKey: string;
-    viewWrapperElem: HTMLDivElement;
-  };
+    data: IEdge
+    edgeTypes: any // TODO: create an edgeTypes interface
+    edgeHandleSize?: number
+    sourceNode: INode | null
+    targetNode: INode | ITargetPosition
+    isSelected: boolean
+    nodeKey: string
+    viewWrapperElem: HTMLDivElement
+  }
 
-  export const Edge: React.Component<IEdgeProps>;
+  export const Edge: React.Component<IEdgeProps>
 
   export type IGraphViewProps = {
-    backgroundFillId?: string;
-    edges: any[];
-    edgeArrowSize?: number;
-    edgeHandleSize?: number;
-    edgeTypes: any;
-    gridDotSize?: number;
-    gridSize?: number;
-    gridSpacing?: number;
-    layoutEngineType?: LayoutEngineType;
-    maxTitleChars?: number;
-    maxZoom?: number;
-    minZoom?: number;
-    nodeKey: string;
-    nodes: any[];
-    nodeSize?: number;
-    nodeHeight?: number;
-    nodeWidth?: number;
-    nodeSubtypes: any;
-    nodeTypes: any;
-    readOnly?: boolean;
-    selected: any;
-    showGraphControls?: boolean;
-    zoomDelay?: number;
-    zoomDur?: number;
-    canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
-    canDeleteEdge?: (selected: any) => boolean;
-    canDeleteNode?: (selected: any) => boolean;
-    onCopySelected?: () => void;
-    onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
-    onCreateNode: (x: number, y: number, event: any) => void;
-    onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
-    onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
-    onPasteSelected?: () => void;
-    onSelectEdge: (selectedEdge: IEdge) => void;
-    onSelectNode: (node: INode | null) => void;
-    onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
-    onUndo?: () => void;
-    onOverrideableClick?: (event: any) => boolean;
-    onUpdateNode: (node: INode) => void;
-    renderBackground?: (gridSize?: number) => any;
-    renderDefs?: () => any;
+    backgroundFillId?: string
+    edges: any[]
+    edgeArrowSize?: number
+    edgeHandleSize?: number
+    edgeTypes: any
+    gridDotSize?: number
+    gridSize?: number
+    gridSpacing?: number
+    layoutEngineType?: LayoutEngineType
+    maxTitleChars?: number
+    maxZoom?: number
+    minZoom?: number
+    nodeKey: string
+    nodes: any[]
+    nodeSize?: number
+    nodeHeight?: number
+    nodeWidth?: number
+    nodeSubtypes: any
+    nodeTypes: any
+    readOnly?: boolean
+    selected: any
+    showGraphControls?: boolean
+    zoomDelay?: number
+    zoomDur?: number
+    canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean
+    canDeleteEdge?: (selected: any) => boolean
+    canDeleteNode?: (selected: any) => boolean
+    onCopySelected?: () => void
+    onCreateEdge: (sourceNode: INode, targetNode: INode) => void
+    onCreateNode: (x: number, y: number, event: any) => void
+    onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void
+    onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void
+    onPasteSelected?: () => void
+    onSelectEdge: (selectedEdge: IEdge) => void
+    onSelectNode: (node: INode | null) => void
+    onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void
+    onUndo?: () => void
+    onOverrideableClick?: (event: any) => boolean
+    onUpdateNode: (node: INode) => void
+    renderBackground?: (gridSize?: number) => any
+    renderDefs?: () => any
     renderNode?: (
       nodeRef: any,
       data: any,
@@ -151,25 +151,25 @@ declare module 'react-digraph' {
       selected: boolean,
       hovered: boolean,
       props: INodeComponentProps
-    ) => any;
+    ) => any
     afterRenderEdge?: (
       id: string,
       element: any,
       edge: IEdge,
       edgeContainer: any,
       isEdgeSelected: boolean
-    ) => void;
+    ) => void
     renderNodeText?: (
       data: any,
       id: string | number,
       isSelected: boolean
-    ) => any;
-  };
+    ) => any
+  }
 
   export type IGraphInput = {
-    nodes: INode[];
-    edges: IEdge[];
-  };
+    nodes: INode[]
+    edges: IEdge[]
+  }
 
   export class BwdlTransformer extends Transformer {}
 
@@ -179,63 +179,63 @@ declare module 'react-digraph' {
      * @param input
      * @returns IGraphInput
      */
-    static transform(input: any): IGraphInput;
+    static transform(input: any): IGraphInput
 
     /**
      * Converts a graphInput to the specified transformer type.
      * @param graphInput
      * @returns any
      */
-    static revert(graphInput: IGraphInput): any;
+    static revert(graphInput: IGraphInput): any
   }
 
-  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree';
+  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree'
 
-  export const GraphView: React.ComponentClass<IGraphViewProps>;
+  export const GraphView: React.ComponentClass<IGraphViewProps>
   export type INodeMapNode = {
-    node: INode;
-    originalArrIndex: number;
-    incomingEdges: IEdge[];
-    outgoingEdges: IEdge[];
-    parents: INode[];
-    children: INode[];
-  };
+    node: INode
+    originalArrIndex: number
+    incomingEdges: IEdge[]
+    outgoingEdges: IEdge[]
+    parents: INode[]
+    children: INode[]
+  }
 
-  type ObjectMap<T> = { [key: string]: T };
+  type ObjectMap<T> = { [key: string]: T }
 
-  export type NodesMap = ObjectMap<INodeMapNode>;
+  export type NodesMap = ObjectMap<INodeMapNode>
 
-  export type EdgesMap = ObjectMap<IEdgeMapNode>;
+  export type EdgesMap = ObjectMap<IEdgeMapNode>
 
   export interface IEdgeMapNode {
-    edge: IEdge;
-    originalArrIndex: number;
+    edge: IEdge
+    originalArrIndex: number
   }
 
-  export type Element = any;
+  export type Element = any
 
   export class GraphUtils {
-    static getNodesMap(arr: INode[], key: string): NodesMap;
+    static getNodesMap(arr: INode[], key: string): NodesMap
 
-    static getEdgesMap(arr: IEdge[]): EdgesMap;
+    static getEdgesMap(arr: IEdge[]): EdgesMap
 
-    static linkNodesAndEdges(nodesMap: NodesMap, edges: IEdge[]): void;
+    static linkNodesAndEdges(nodesMap: NodesMap, edges: IEdge[]): void
 
-    static removeElementFromDom(id: string): boolean;
+    static removeElementFromDom(id: string): boolean
 
-    static findParent(element: Element, selector: string): Element | null;
+    static findParent(element: Element, selector: string): Element | null
 
-    static classNames(...args: any[]): string;
+    static classNames(...args: any[]): string
 
     static yieldingLoop(
       count: number,
       chunksize: number,
       callback: (i: number) => void,
       finished?: () => void
-    ): void;
+    ): void
 
-    static hasNodeShallowChanged(prevNode: INode, newNode: INode): boolean;
+    static hasNodeShallowChanged(prevNode: INode, newNode: INode): boolean
 
-    static isEqual(prevNode: any, newNode: any): boolean;
+    static isEqual(prevNode: any, newNode: any): boolean
   }
 }
