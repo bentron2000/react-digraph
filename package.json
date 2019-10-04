@@ -1,7 +1,7 @@
 {
-  "name": "react-digraph",
+  "name": "react-digraph-bentron",
   "description": "directed graph react component",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "keywords": [
     "uber-library",
     "babel",
@@ -122,7 +122,7 @@
     "test": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
-    "package": "npm-run-all clean lint test build build:prod",
+    "package": "npm-run-all clean lint build:prod",
     "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
   },
   "jest": {
