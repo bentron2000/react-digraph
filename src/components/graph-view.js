@@ -1451,7 +1451,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
    * without causing a full GraphView render.
    */
   renderGraphControls() {
-    const { showGraphControls, minZoom, maxZoom } = this.props;
+    const { showGraphControls, minZoom, maxZoom, CustomControls } = this.props;
     const { viewTransform } = this.state;
 
     if (!showGraphControls || !this.viewWrapper) {
@@ -1466,9 +1466,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
+    const GraphControlsComp = CustomControls ? CustomControls : GraphControls;
+
+    // ref={this.graphControls}
     ReactDOM.render(
-      <GraphControls
-        ref={this.graphControls}
+      <GraphControlsComp
         minZoom={minZoom}
         maxZoom={maxZoom}
         zoomLevel={viewTransform ? viewTransform.k : 1}
