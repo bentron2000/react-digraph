@@ -174,7 +174,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     if (this.state.overidingClick) {
-      return this.setState({ overidingClick: false });
+      return;
     }
 
     // While the mouse is down, this function handles all mouse movement
@@ -256,7 +256,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     });
 
     if (overidingClick) {
-      return;
+      return this.setState({ overidingClick: false });
     }
 
     if (this.oldSibling && this.oldSibling.parentElement) {
