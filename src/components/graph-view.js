@@ -651,13 +651,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
 
-      // de-select the current selection
       this.setState({
-        selectedNodeObj: null,
         focused: true,
         svgClicked: true,
       });
-      onSelectNode(null);
 
       if (previousSelection) {
         this.syncRenderNode(previousSelection);
