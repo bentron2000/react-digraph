@@ -204,8 +204,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
       .on('click', this.handleSvgClicked) // handle element click in the element components
-      .select('svg')
-      .call(this.zoom);
+      .select('svg');
 
     this.selectedView = d3.select(this.view);
 
