@@ -622,12 +622,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleSvgClicked = (d: any, i: any) => {
-    const {
-      onBackgroundClick,
-      onSelectNode,
-      readOnly,
-      onCreateNode,
-    } = this.props;
+    const { readOnly, onCreateNode } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
@@ -642,12 +637,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
-      if (!d3.event.shiftKey && onBackgroundClick) {
-        const xycoords = d3.mouse(d3.event.target);
-
-        onBackgroundClick(xycoords[0], xycoords[1], d3.event);
-      }
-
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
 
@@ -669,6 +658,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleDocumentClick = (event: any) => {
+    const { onSelectNode, onBackgroundClick } = this.props;
+
     // Ignore document click if it's in the SVGElement
     // This seems to detect a background click.
     if (
@@ -678,7 +669,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       event.target.ownerSVGElement === this.graphSvg.current
     ) {
       // Clear selection when clicking diagram background.
-      this.props.onSelectNode(null);
+      onSelectNode(null);
+      onBackgroundClick(event.x, event.y, event);
 
       return;
     }
