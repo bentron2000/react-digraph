@@ -160,7 +160,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       .on('end', this.handleDragEnd);
 
     d3.select(this.nodeRef.current)
-      .on('mouseout', this.handleMouseOut)
+      .on('mouseenter', this.handleMouseOver)
+      .on('mouseleave', this.handleMouseOut)
       .call(dragFunction);
   }
 
@@ -227,7 +228,12 @@ class Node extends React.Component<INodeProps, INodeState> {
     const { data, nodeKey, onOverrideableClick, onNodeSelected } = this.props;
     const overidingClick = onOverrideableClick(d3.event);
 
-    onNodeSelected(data, data[nodeKey], sourceEvent.shiftKey || this.state.drawingEdge, sourceEvent);
+    onNodeSelected(
+      data,
+      data[nodeKey],
+      sourceEvent.shiftKey || this.state.drawingEdge,
+      sourceEvent
+    );
 
     if (overidingClick) {
       return this.setState({ overidingClick: true });
@@ -257,7 +263,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       drawingEdge: false,
       overidingClick: false,
       pointerOffset: null,
-    }
+    };
 
     if (!overidingClick) {
       if (this.oldSibling && this.oldSibling.parentElement) {
@@ -267,12 +273,16 @@ class Node extends React.Component<INodeProps, INodeState> {
         );
       }
 
-      onNodeUpdate({ x, y }, data[nodeKey], sourceEvent.shiftKey || drawingEdge);
+      onNodeUpdate(
+        { x, y },
+        data[nodeKey],
+        sourceEvent.shiftKey || drawingEdge
+      );
     } else {
-      newState.overidingClick = false
+      newState.overidingClick = false;
     }
 
-    this.setState(newState)
+    this.setState(newState);
   };
 
   handleMouseOver = (event: any) => {
@@ -442,8 +452,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     return (
       <g
         className={className}
-        onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}
         id={id}
         ref={this.nodeRef}
         opacity={opacity}
