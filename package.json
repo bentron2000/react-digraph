@@ -1,7 +1,7 @@
 {
   "name": "react-digraph-bentron",
   "description": "directed graph react component",
-  "version": "6.6.6",
+  "version": "6.6.7",
   "keywords": [
     "uber-library",
     "babel",
