@@ -204,8 +204,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
       .on('click', this.handleSvgClicked) // handle element click in the element components
-      .select('svg')
-      .call(this.zoom);
+      .select('svg');
 
     this.selectedView = d3.select(this.view);
 
@@ -623,12 +622,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleSvgClicked = (d: any, i: any) => {
-    const {
-      onBackgroundClick,
-      onSelectNode,
-      readOnly,
-      onCreateNode,
-    } = this.props;
+    const { readOnly, onCreateNode } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
@@ -643,22 +637,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
-      if (!d3.event.shiftKey && onBackgroundClick) {
-        const xycoords = d3.mouse(d3.event.target);
-
-        onBackgroundClick(xycoords[0], xycoords[1], d3.event);
-      }
-
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
 
-      // de-select the current selection
       this.setState({
-        selectedNodeObj: null,
         focused: true,
         svgClicked: true,
       });
-      onSelectNode(null);
 
       if (previousSelection) {
         this.syncRenderNode(previousSelection);
@@ -673,13 +658,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleDocumentClick = (event: any) => {
+    const { onSelectNode, onBackgroundClick } = this.props;
+
     // Ignore document click if it's in the SVGElement
+    // This seems to detect a background click.
     if (
       event &&
       event.target &&
       event.target.ownerSVGElement != null &&
       event.target.ownerSVGElement === this.graphSvg.current
     ) {
+      // Clear selection when clicking diagram background.
+      onSelectNode(null);
+      onBackgroundClick(event.x, event.y, event);
+
       return;
     }
 

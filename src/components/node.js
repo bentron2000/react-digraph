@@ -160,7 +160,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       .on('end', this.handleDragEnd);
 
     d3.select(this.nodeRef.current)
-      .on('mouseout', this.handleMouseOut)
+      .on('mouseenter', this.handleMouseOver)
+      .on('mouseleave', this.handleMouseOut)
       .call(dragFunction);
   }
 
@@ -174,7 +175,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     if (this.state.overidingClick) {
-      return this.setState({ overidingClick: false });
+      return;
     }
 
     // While the mouse is down, this function handles all mouse movement
@@ -223,7 +224,16 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
 
-    const overidingClick = this.props.onOverrideableClick(d3.event);
+    const { sourceEvent } = d3.event;
+    const { data, nodeKey, onOverrideableClick, onNodeSelected } = this.props;
+    const overidingClick = onOverrideableClick(d3.event);
+
+    onNodeSelected(
+      data,
+      data[nodeKey],
+      sourceEvent.shiftKey || this.state.drawingEdge,
+      sourceEvent
+    );
 
     if (overidingClick) {
       return this.setState({ overidingClick: true });
@@ -245,32 +255,34 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { x, y, drawingEdge, overidingClick } = this.state;
-    const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
+    const { data, nodeKey, onNodeUpdate } = this.props;
     const { sourceEvent } = d3.event;
 
-    this.setState({
+    const newState = {
       mouseDown: false,
       drawingEdge: false,
       overidingClick: false,
       pointerOffset: null,
-    });
+    };
 
-    if (overidingClick) {
-      return;
-    }
+    if (!overidingClick) {
+      if (this.oldSibling && this.oldSibling.parentElement) {
+        this.oldSibling.parentElement.insertBefore(
+          this.nodeRef.current.parentElement,
+          this.oldSibling
+        );
+      }
 
-    if (this.oldSibling && this.oldSibling.parentElement) {
-      this.oldSibling.parentElement.insertBefore(
-        this.nodeRef.current.parentElement,
-        this.oldSibling
+      onNodeUpdate(
+        { x, y },
+        data[nodeKey],
+        sourceEvent.shiftKey || drawingEdge
       );
+    } else {
+      newState.overidingClick = false;
     }
 
-    const shiftKey = sourceEvent.shiftKey;
-
-    onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
-
-    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
+    this.setState(newState);
   };
 
   handleMouseOver = (event: any) => {
@@ -440,8 +452,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     return (
       <g
         className={className}
-        onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}
         id={id}
         ref={this.nodeRef}
         opacity={opacity}
