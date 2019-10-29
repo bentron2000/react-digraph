@@ -530,11 +530,13 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   edgeOverlayRef: React.ElementRef<typeof Edge>;
+  edgeRef: React.ElementRef<SVGGElement>;
   handleTextRef: React.ElementRef<any>;
 
   constructor(props: IEdgeProps) {
     super(props);
     this.edgeOverlayRef = React.createRef();
+    this.edgeRef = React.createRef();
     this.handleTextRef = React.createRef();
 
     this.state = {
@@ -750,6 +752,16 @@ class Edge extends React.Component<IEdgeProps> {
       selected: this.props.isSelected,
     });
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
+    const handleMouseEnter = e => {
+      if (this.edgeRef.current) {
+        this.edgeRef.current.querySelector('.edge-text').classList.add('hover');
+      }
+    }
+    const handleMouseLeave = e => {
+      if (this.edgeRef.current) {
+        this.edgeRef.current.querySelector('.edge-text').classList.remove('hover');
+      }
+    }
 
     return (
       <g
@@ -757,7 +769,7 @@ class Edge extends React.Component<IEdgeProps> {
         data-source={data.source}
         data-target={data.target}
       >
-        <g className={className}>
+        <g className={className} ref={this.edgeRef}>
           <path
             className="edge-path"
             d={this.getPathDescription(data) || undefined}
@@ -776,6 +788,8 @@ class Edge extends React.Component<IEdgeProps> {
           <title>{data.handleTooltipText}</title>
           <path
             className="edge-overlay-path"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             ref={this.edgeOverlayRef}
             id={id}
             data-source={data.source}

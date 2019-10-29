@@ -91,19 +91,20 @@ $font-family: "proxima-nova", Helvetica, Arial, sans-serif;
 
       cursor: pointer;
       user-select: none;
-    }
 
-    &.selected {
-      color: $primary-color;
-      stroke: $primary-color;
-
-      .edge-text {
+      &.hover,
+      &:hover {
         fill: $light-color;
         stroke: $light-color;
       }
     }
 
-
+    &.selected {
+      .edge-text {
+        fill: $light-color;
+        stroke: $light-color;
+      }
+    }
   }
 
   .edge-mouse-handler {
