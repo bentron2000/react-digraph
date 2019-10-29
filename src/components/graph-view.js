@@ -590,8 +590,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  handleEdgeSelected = e => {
-    const { source, target } = e.target.dataset;
+  handleEdgeSelected = element => {
+    const { source, target } = element.dataset;
     let newState = {
       svgClicked: true,
       focused: true,
@@ -621,15 +621,30 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
+  // Handle graph SVG clicks (this is a broad click handler, fires for
+  // nodes, edges, controls & background)
   handleSvgClicked = (d: any, i: any) => {
-    const { readOnly, onCreateNode } = this.props;
+    const {
+      readOnly,
+      onCreateNode,
+      onSelectNode,
+      onBackgroundClick,
+    } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
-      this.handleEdgeSelected(d3.event);
+      // Detect edge selected from any edge children elements
+      const edge = GraphUtils.findParent(d3.event.target, '.edge-container');
+
+      this.handleEdgeSelected(edge);
 
       return; // If any part of the edge is clicked, return
     }
 
+    const graphBackgroundClicked =
+      !this.isPartOfNode(d3.event.target) &&
+      !this.isPartOfControls(d3.event.target);
+
+    // NOTE: state.selectingNode seems to never be set `true`
     if (this.state.selectingNode) {
       this.setState({
         focused: true,
@@ -637,6 +652,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
+      // Handle background click..
+      if (graphBackgroundClicked) {
+        onSelectNode(null);
+
+        if (onBackgroundClick) {
+          const xycoords = d3.mouse(d3.event.target);
+
+          onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+        }
+      }
+
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
 
@@ -661,17 +687,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { onSelectNode, onBackgroundClick } = this.props;
 
     // Ignore document click if it's in the SVGElement
-    // This seems to detect a background click.
     if (
       event &&
       event.target &&
       event.target.ownerSVGElement != null &&
       event.target.ownerSVGElement === this.graphSvg.current
     ) {
-      // Clear selection when clicking diagram background.
-      onSelectNode(null);
-      onBackgroundClick(event.x, event.y, event);
-
       return;
     }
 
@@ -684,6 +705,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   isPartOfEdge(element: any) {
     return !!GraphUtils.findParent(element, '.edge-container');
+  }
+
+  isPartOfNode(element: any) {
+    return !!GraphUtils.findParent(element, '.node');
+  }
+
+  isPartOfControls(element: any) {
+    return !!GraphUtils.findParent(element, '.graph-controls');
   }
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
@@ -812,10 +841,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (
       (d3.event &&
         d3.event.toElement &&
-        GraphUtils.findParent(d3.event.toElement, '.node')) ||
+        this.isPartOfNode(d3.event.toElement)) ||
       (event &&
         event.relatedTarget &&
-        GraphUtils.findParent(event.relatedTarget, '.node')) ||
+        this.isPartOfNode(event.relatedTarget)) ||
       (d3.event && d3.event.buttons === 1) ||
       (event && event.buttons === 1)
     ) {
