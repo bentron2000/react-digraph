@@ -542,7 +542,7 @@ class Edge extends React.Component<IEdgeProps> {
     };
   }
 
-  getEdgeHandleTranslation = () => {
+  getEdgeHandleTranslationCoords = () => {
     const { data } = this.props;
     const { handleTextRenderedWidth } = this.state;
 
@@ -566,13 +566,13 @@ class Edge extends React.Component<IEdgeProps> {
     const BUFFER_LENGTH = 15;
 
     if (Math.abs(diffY) < 0.05) {
-      return `translate(${xCentre}, ${yCentre - BUFFER_LENGTH})`;
+      return { x: xCentre, y: yCentre - BUFFER_LENGTH };
     }
 
     if (Math.abs(diffX) < 0.05) {
       const xOff = handleTextRenderedWidth / 2 + BUFFER_LENGTH;
 
-      return `translate(${xCentre + xOff}, ${yCentre})`;
+      return { x: xCentre + xOff, y: yCentre };
     }
 
     // const m = diffY / diffX;
@@ -580,6 +580,12 @@ class Edge extends React.Component<IEdgeProps> {
 
     const y = yCentre; // + m * handleTextRenderedWidth + c;
     const x = xCentre;
+
+    return { x, y };
+  };
+
+  getEdgeHandleTranslation = () => {
+    const { x, y } = this.getEdgeHandleTranslationCoords();
 
     return `translate(${x}, ${y})`;
   };
@@ -680,6 +686,26 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   renderHandleText(data: any) {
+    const lines = GraphUtils.chunkArray(data.handleText.split(' '), 2);
+
+    const lineHeight = 1.4;
+    // The maximum amount of "dy" offset to apply on the first tspan
+    const maxBaseDy = -2.8;
+    // The first text line (tspan) is offset up the y axis to allow for the following text lines to
+    // appear below it, and for horizontal edges above the edge, and for vertical edges in a
+    // decently centered position. This can scale to far out of control, hence the maxBaseDy.
+    const baseDy = Math.max((lines.length - 1) * -lineHeight, maxBaseDy);
+    const tspanEls = lines.map((line, index) => {
+      // The first tspan sets the offset, then the following dy attributes are applied accumulatively.
+      const dy = index === 0 ? baseDy : lineHeight;
+
+      return (
+        <tspan x="0em" dy={`${dy}em`}>
+          {line.join(' ')}
+        </tspan>
+      );
+    });
+
     return (
       <text
         className="edge-text"
@@ -688,7 +714,7 @@ class Edge extends React.Component<IEdgeProps> {
         transform={`${this.getEdgeHandleTranslation()}`}
         ref={this.handleTextRef}
       >
-        {data.handleText}
+        {tspanEls}
       </text>
     );
   }
