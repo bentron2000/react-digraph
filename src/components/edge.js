@@ -702,7 +702,7 @@ class Edge extends React.Component<IEdgeProps> {
       const dy = index === 0 ? baseDy : lineHeight;
 
       return (
-        <tspan x="0em" dy={`${dy}em`}>
+        <tspan key={index} x="0em" dy={`${dy}em`}>
           {line.join(' ')}
         </tspan>
       );
@@ -756,12 +756,12 @@ class Edge extends React.Component<IEdgeProps> {
       if (this.edgeRef.current) {
         this.edgeRef.current.querySelector('.edge-text').classList.add('hover');
       }
-    }
+    };
     const handleMouseLeave = e => {
       if (this.edgeRef.current) {
         this.edgeRef.current.querySelector('.edge-text').classList.remove('hover');
       }
-    }
+    };
 
     return (
       <g

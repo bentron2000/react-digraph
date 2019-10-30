@@ -31,6 +31,7 @@ export type IGraphViewProps = {
   edges: any[],
   edgeArrowSize?: number,
   edgeHandleSize?: number,
+  nodeEdgeHandleSelector?: string,
   edgeTypes: any,
   gridDotSize?: number,
   gridSize?: number,

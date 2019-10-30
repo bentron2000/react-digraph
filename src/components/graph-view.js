@@ -715,7 +715,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!GraphUtils.findParent(element, '.graph-controls');
   }
 
-  handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
+  handleNodeMove = (position: IPoint, nodeId: string, draggingEdge = false) => {
     const { canCreateEdge, readOnly } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
@@ -729,7 +729,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    if (!shiftKey && !this.state.draggingEdge) {
+    if (!draggingEdge && !this.state.draggingEdge) {
       // node moved
       node.x = position.x;
       node.y = position.y;
@@ -744,6 +744,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       // render new edge
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
       this.setState({ draggingEdge: true });
+    } else {
+      this.setState({ draggingEdge: false });
     }
   };
 
@@ -776,18 +778,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         });
 
         // we expect the parent website to set the selected property to the new edge when it's created
-        onCreateEdge(hoveredNodeData, edgeEndNode);
-      } else {
-        // make the system understand that the edge creation process is done even though it didn't work.
-        this.setState({
-          edgeEndNode: null,
-          draggingEdge: false,
-        });
+        return onCreateEdge(hoveredNodeData, edgeEndNode);
       }
     }
+
+    // make the system understand that the edge creation process is done even though it didn't work.
+    this.setState({
+      edgeEndNode: null,
+      draggingEdge: false,
+    });
   }
 
-  handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
+  handleNodeUpdate = (position: any, nodeId: string, drawingEdge: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
@@ -796,7 +798,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey) {
+    if (drawingEdge) {
       this.createNewEdge();
     } else {
       const nodeMap = this.getNodeById(nodeId);
@@ -1228,6 +1230,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodeSize,
       nodeHeight,
       nodeWidth,
+      nodeEdgeHandleSelector,
       renderNode,
       renderNodeText,
       nodeKey,
@@ -1248,6 +1251,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         onNodeMouseEnter={this.handleNodeMouseEnter}
         onNodeMouseLeave={this.handleNodeMouseLeave}
         onNodeMove={this.handleNodeMove}
+        nodeEdgeHandleSelector={nodeEdgeHandleSelector}
         onNodeUpdate={this.handleNodeUpdate}
         onNodeSelected={this.handleNodeSelected}
         onOverrideableClick={this.handleOverrideableClick}
