@@ -42,7 +42,7 @@ type IBBox = {
   height: number,
 };
 
-type IGraphViewState = {
+export type IGraphViewState = {
   viewTransform?: IViewTransform,
   hoveredNode: boolean,
   nodesMap: any,
@@ -257,7 +257,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       selectedNodeObj,
       selectedEdgeObj,
     } = this.state;
-    const { layoutEngineType } = this.props;
+    const { layoutEngineType, shouldForceReRender } = this.props;
 
     if (layoutEngineType && LayoutEngines[layoutEngineType]) {
       this.layoutEngine = new LayoutEngines[layoutEngineType](this.props);
@@ -268,7 +268,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    const forceReRender = prevProps.layoutEngineType !== layoutEngineType;
+    const forceReRender =
+      prevProps.layoutEngineType !== layoutEngineType ||
+      (shouldForceReRender &&
+        shouldForceReRender({
+          prevNode: prevState.selectedNodeObj,
+          node: selectedNodeObj,
+          prevEdge: prevState.selectedEdgeObj,
+          edge: selectedEdgeObj,
+        }));
 
     // Note: the order is intentional
     // remove old edges
