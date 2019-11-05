@@ -692,8 +692,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleDocumentClick = (event: any) => {
-    const { onSelectNode, onBackgroundClick } = this.props;
-
     // Ignore document click if it's in the SVGElement
     if (
       event &&

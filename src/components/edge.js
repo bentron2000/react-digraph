@@ -759,7 +759,9 @@ class Edge extends React.Component<IEdgeProps> {
     };
     const handleMouseLeave = e => {
       if (this.edgeRef.current) {
-        this.edgeRef.current.querySelector('.edge-text').classList.remove('hover');
+        this.edgeRef.current
+          .querySelector('.edge-text')
+          .classList.remove('hover');
       }
     };
 
