@@ -42,7 +42,7 @@ type IBBox = {
   height: number,
 };
 
-type IGraphViewState = {
+export type IGraphViewState = {
   viewTransform?: IViewTransform,
   hoveredNode: boolean,
   nodesMap: any,
@@ -257,7 +257,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       selectedNodeObj,
       selectedEdgeObj,
     } = this.state;
-    const { layoutEngineType } = this.props;
+    const { layoutEngineType, shouldForceReRender } = this.props;
 
     if (layoutEngineType && LayoutEngines[layoutEngineType]) {
       this.layoutEngine = new LayoutEngines[layoutEngineType](this.props);
@@ -268,7 +268,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    const forceReRender = prevProps.layoutEngineType !== layoutEngineType;
+    const forceReRender =
+      prevProps.layoutEngineType !== layoutEngineType ||
+      (shouldForceReRender &&
+        shouldForceReRender({
+          prevNode: prevState.selectedNodeObj,
+          node: selectedNodeObj,
+          prevEdge: prevState.selectedEdgeObj,
+          edge: selectedEdgeObj,
+        }));
 
     // Note: the order is intentional
     // remove old edges
@@ -590,8 +598,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  handleEdgeSelected = e => {
-    const { source, target } = e.target.dataset;
+  handleEdgeSelected = element => {
+    const { source, target } = element.dataset;
     let newState = {
       svgClicked: true,
       focused: true,
@@ -621,15 +629,30 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
+  // Handle graph SVG clicks (this is a broad click handler, fires for
+  // nodes, edges, controls & background)
   handleSvgClicked = (d: any, i: any) => {
-    const { readOnly, onCreateNode } = this.props;
+    const {
+      readOnly,
+      onCreateNode,
+      onSelectNode,
+      onBackgroundClick,
+    } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
-      this.handleEdgeSelected(d3.event);
+      // Detect edge selected from any edge children elements
+      const edge = GraphUtils.findParent(d3.event.target, '.edge-container');
+
+      this.handleEdgeSelected(edge);
 
       return; // If any part of the edge is clicked, return
     }
 
+    const graphBackgroundClicked =
+      !this.isPartOfNode(d3.event.target) &&
+      !this.isPartOfControls(d3.event.target);
+
+    // NOTE: state.selectingNode seems to never be set `true`
     if (this.state.selectingNode) {
       this.setState({
         focused: true,
@@ -637,6 +660,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
+      // Handle background click..
+      if (graphBackgroundClicked) {
+        onSelectNode(null);
+
+        if (onBackgroundClick) {
+          const xycoords = d3.mouse(d3.event.target);
+
+          onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+        }
+      }
+
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
 
@@ -661,17 +695,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { onSelectNode, onBackgroundClick } = this.props;
 
     // Ignore document click if it's in the SVGElement
-    // This seems to detect a background click.
     if (
       event &&
       event.target &&
       event.target.ownerSVGElement != null &&
       event.target.ownerSVGElement === this.graphSvg.current
     ) {
-      // Clear selection when clicking diagram background.
-      onSelectNode(null);
-      onBackgroundClick(event.x, event.y, event);
-
       return;
     }
 
@@ -686,7 +715,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!GraphUtils.findParent(element, '.edge-container');
   }
 
-  handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
+  isPartOfNode(element: any) {
+    return !!GraphUtils.findParent(element, '.node');
+  }
+
+  isPartOfControls(element: any) {
+    return !!GraphUtils.findParent(element, '.graph-controls');
+  }
+
+  handleNodeMove = (position: IPoint, nodeId: string, draggingEdge = false) => {
     const { canCreateEdge, readOnly } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
@@ -700,7 +737,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    if (!shiftKey && !this.state.draggingEdge) {
+    if (!draggingEdge && !this.state.draggingEdge) {
       // node moved
       node.x = position.x;
       node.y = position.y;
@@ -715,6 +752,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       // render new edge
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
       this.setState({ draggingEdge: true });
+    } else {
+      this.setState({ draggingEdge: false });
     }
   };
 
@@ -747,18 +786,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         });
 
         // we expect the parent website to set the selected property to the new edge when it's created
-        onCreateEdge(hoveredNodeData, edgeEndNode);
-      } else {
-        // make the system understand that the edge creation process is done even though it didn't work.
-        this.setState({
-          edgeEndNode: null,
-          draggingEdge: false,
-        });
+        return onCreateEdge(hoveredNodeData, edgeEndNode);
       }
     }
+
+    // make the system understand that the edge creation process is done even though it didn't work.
+    this.setState({
+      edgeEndNode: null,
+      draggingEdge: false,
+    });
   }
 
-  handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
+  handleNodeUpdate = (position: any, nodeId: string, drawingEdge: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
@@ -767,7 +806,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey) {
+    if (drawingEdge) {
       this.createNewEdge();
     } else {
       const nodeMap = this.getNodeById(nodeId);
@@ -812,10 +851,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (
       (d3.event &&
         d3.event.toElement &&
-        GraphUtils.findParent(d3.event.toElement, '.node')) ||
+        this.isPartOfNode(d3.event.toElement)) ||
       (event &&
         event.relatedTarget &&
-        GraphUtils.findParent(event.relatedTarget, '.node')) ||
+        this.isPartOfNode(event.relatedTarget)) ||
       (d3.event && d3.event.buttons === 1) ||
       (event && event.buttons === 1)
     ) {
@@ -1199,6 +1238,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodeSize,
       nodeHeight,
       nodeWidth,
+      nodeEdgeHandleSelector,
       renderNode,
       renderNodeText,
       nodeKey,
@@ -1219,6 +1259,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         onNodeMouseEnter={this.handleNodeMouseEnter}
         onNodeMouseLeave={this.handleNodeMouseLeave}
         onNodeMove={this.handleNodeMove}
+        nodeEdgeHandleSelector={nodeEdgeHandleSelector}
         onNodeUpdate={this.handleNodeUpdate}
         onNodeSelected={this.handleNodeSelected}
         onOverrideableClick={this.handleOverrideableClick}

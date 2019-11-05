@@ -530,11 +530,13 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   edgeOverlayRef: React.ElementRef<typeof Edge>;
+  edgeRef: React.ElementRef<SVGGElement>;
   handleTextRef: React.ElementRef<any>;
 
   constructor(props: IEdgeProps) {
     super(props);
     this.edgeOverlayRef = React.createRef();
+    this.edgeRef = React.createRef();
     this.handleTextRef = React.createRef();
 
     this.state = {
@@ -542,7 +544,7 @@ class Edge extends React.Component<IEdgeProps> {
     };
   }
 
-  getEdgeHandleTranslation = () => {
+  getEdgeHandleTranslationCoords = () => {
     const { data } = this.props;
     const { handleTextRenderedWidth } = this.state;
 
@@ -566,13 +568,13 @@ class Edge extends React.Component<IEdgeProps> {
     const BUFFER_LENGTH = 15;
 
     if (Math.abs(diffY) < 0.05) {
-      return `translate(${xCentre}, ${yCentre - BUFFER_LENGTH})`;
+      return { x: xCentre, y: yCentre - BUFFER_LENGTH };
     }
 
     if (Math.abs(diffX) < 0.05) {
       const xOff = handleTextRenderedWidth / 2 + BUFFER_LENGTH;
 
-      return `translate(${xCentre + xOff}, ${yCentre})`;
+      return { x: xCentre + xOff, y: yCentre };
     }
 
     // const m = diffY / diffX;
@@ -580,6 +582,12 @@ class Edge extends React.Component<IEdgeProps> {
 
     const y = yCentre; // + m * handleTextRenderedWidth + c;
     const x = xCentre;
+
+    return { x, y };
+  };
+
+  getEdgeHandleTranslation = () => {
+    const { x, y } = this.getEdgeHandleTranslationCoords();
 
     return `translate(${x}, ${y})`;
   };
@@ -680,6 +688,26 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   renderHandleText(data: any) {
+    const lines = GraphUtils.chunkArray(data.handleText.split(' '), 2);
+
+    const lineHeight = 1.4;
+    // The maximum amount of "dy" offset to apply on the first tspan
+    const maxBaseDy = -2.8;
+    // The first text line (tspan) is offset up the y axis to allow for the following text lines to
+    // appear below it, and for horizontal edges above the edge, and for vertical edges in a
+    // decently centered position. This can scale to far out of control, hence the maxBaseDy.
+    const baseDy = Math.max((lines.length - 1) * -lineHeight, maxBaseDy);
+    const tspanEls = lines.map((line, index) => {
+      // The first tspan sets the offset, then the following dy attributes are applied accumulatively.
+      const dy = index === 0 ? baseDy : lineHeight;
+
+      return (
+        <tspan key={index} x="0em" dy={`${dy}em`}>
+          {line.join(' ')}
+        </tspan>
+      );
+    });
+
     return (
       <text
         className="edge-text"
@@ -688,7 +716,7 @@ class Edge extends React.Component<IEdgeProps> {
         transform={`${this.getEdgeHandleTranslation()}`}
         ref={this.handleTextRef}
       >
-        {data.handleText}
+        {tspanEls}
       </text>
     );
   }
@@ -724,6 +752,16 @@ class Edge extends React.Component<IEdgeProps> {
       selected: this.props.isSelected,
     });
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
+    const handleMouseEnter = e => {
+      if (this.edgeRef.current) {
+        this.edgeRef.current.querySelector('.edge-text').classList.add('hover');
+      }
+    };
+    const handleMouseLeave = e => {
+      if (this.edgeRef.current) {
+        this.edgeRef.current.querySelector('.edge-text').classList.remove('hover');
+      }
+    };
 
     return (
       <g
@@ -731,7 +769,7 @@ class Edge extends React.Component<IEdgeProps> {
         data-source={data.source}
         data-target={data.target}
       >
-        <g className={className}>
+        <g className={className} ref={this.edgeRef}>
           <path
             className="edge-path"
             d={this.getPathDescription(data) || undefined}
@@ -750,6 +788,8 @@ class Edge extends React.Component<IEdgeProps> {
           <title>{data.handleTooltipText}</title>
           <path
             className="edge-overlay-path"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             ref={this.edgeOverlayRef}
             id={id}
             data-source={data.source}

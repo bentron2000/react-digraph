@@ -31,6 +31,7 @@ export type IGraphViewProps = {
   edges: any[],
   edgeArrowSize?: number,
   edgeHandleSize?: number,
+  nodeEdgeHandleSelector?: string,
   edgeTypes: any,
   gridDotSize?: number,
   gridSize?: number,
@@ -86,6 +87,12 @@ export type IGraphViewProps = {
     isEdgeSelected: boolean
   ) => void,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
+  shouldForceReRender?: (
+    prevNode: any,
+    node: any,
+    prevEdge: any,
+    edge: any
+  ) => boolean,
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
   initialBBox: IBBox,

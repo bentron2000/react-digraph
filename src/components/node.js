@@ -57,6 +57,7 @@ type INodeProps = {
   nodeSize?: number,
   nodeWidth?: number,
   nodeHeight?: number,
+  nodeEdgeHandleSelector?: string,
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void,
   onNodeMouseLeave: (event: any, data: any) => void,
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
@@ -174,7 +175,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
 
-    if (this.state.overidingClick) {
+    if (this.state.overidingClick && !this.state.drawingEdge) {
       return;
     }
 
@@ -193,7 +194,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.y -= newState.pointerOffset.y;
     }
 
-    if (shiftKey) {
+    if (shiftKey || this.state.drawingEdge) {
       this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
@@ -216,7 +217,11 @@ class Node extends React.Component<INodeProps, INodeState> {
     this.setState(newState);
     // Never use this.props.index because if the nodes array changes order
     // then this function could move the wrong node.
-    this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
+    this.props.onNodeMove(
+      newState,
+      this.props.data[nodeKey],
+      shiftKey || this.state.drawingEdge
+    );
   };
 
   handleDragStart = () => {
@@ -225,7 +230,13 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { sourceEvent } = d3.event;
-    const { data, nodeKey, onOverrideableClick, onNodeSelected } = this.props;
+    const {
+      data,
+      nodeKey,
+      onOverrideableClick,
+      onNodeSelected,
+      nodeEdgeHandleSelector,
+    } = this.props;
     const overidingClick = onOverrideableClick(d3.event);
 
     onNodeSelected(
@@ -234,6 +245,11 @@ class Node extends React.Component<INodeProps, INodeState> {
       sourceEvent.shiftKey || this.state.drawingEdge,
       sourceEvent
     );
+
+    // Start dragging edge from a custom element
+    if (GraphUtils.findParent(sourceEvent.target, nodeEdgeHandleSelector)) {
+      return this.setState({ drawingEdge: true });
+    }
 
     if (overidingClick) {
       return this.setState({ overidingClick: true });
