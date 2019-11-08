@@ -250,13 +250,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentDidUpdate(prevProps: IGraphViewProps, prevState: IGraphViewState) {
-    const {
-      nodesMap,
-      edgesMap,
-      nodes,
-      selectedNodeObj,
-      selectedEdgeObj,
-    } = this.state;
+    const { nodesMap, nodes, selectedNodeObj, selectedEdgeObj } = this.state;
     const { layoutEngineType, shouldForceReRender } = this.props;
 
     if (layoutEngineType && LayoutEngines[layoutEngineType]) {
@@ -280,7 +274,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Note: the order is intentional
     // remove old edges
-    this.removeOldEdges(prevState.edges, edgesMap);
+    this.removeOldEdges(prevState.edges);
 
     // remove old nodes
     this.removeOldNodes(prevState.nodes, prevState.nodesMap, nodesMap);
@@ -430,7 +424,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  removeOldEdges = (prevEdges: IEdge[], edgesMap: any) => {
+  removeOldEdges = (prevEdges: IEdge[]) => {
     // remove old edges
     let edge = null;
 
@@ -438,11 +432,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       edge = prevEdges[i];
 
       // Check for deletions
-      if (
-        !edge.source ||
-        !edge.target ||
-        !edgesMap[`${edge.source}_${edge.target}`]
-      ) {
+      if (!this.getEdgeBySourceTarget(edge.source, edge.target)) {
         // remove edge
         this.removeEdgeElement(edge.source, edge.target);
         continue;
@@ -450,10 +440,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  removeEdgeElement(source: string, target: string) {
+  removeEdgeElement(source: string, target: string, retry: number = 0) {
     const id = `${source}-${target}`;
 
-    GraphUtils.removeElementFromDom(`edge-${id}-container`);
+    // remove edge
+    // The timeout & retries avoids a race condition
+    const removed = GraphUtils.removeElementFromDom(`edge-${id}-container`);
+
+    if (!removed) {
+      if (retry < 3) {
+        setTimeout(() => {
+          this.removeEdgeElement(source, target, retry + 1);
+        }, retry * 100);
+      }
+    }
   }
 
   canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
