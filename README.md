@@ -194,52 +194,56 @@ All props are detailed below.
 
 ## Props
 
-| Prop                | Type                    | Required  | Notes                                                     |
-| --------------------|:-----------------------:| :--------:| :--------------------------------------------------------:|
-| nodeKey             | string                  | true      | Key for D3 to update nodes(typ. UUID).                    |
-| nodes               | array                   | true      | Array of graph nodes.                                     |
-| edges               | array                   | true      | Array of graph edges.                                     |
-| selected            | object                  | true      | The currently selected graph entity.                      |
-| nodeTypes           | object                  | true      | Config object of available node types.                    |
-| nodeSubtypes        | object                  | true      | Config object of available node subtypes.                 |
-| edgeTypes           | object                  | true      | Config object of available edge types.                    |
-| onSelectNode        | func                    | true      | Called when a node is selected.                           |
-| onCreateNode        | func                    | true      | Called when a node is created.                            |
-| onUpdateNode        | func                    | true      | Called when a node is moved.                              |
-| onDeleteNode        | func                    | true      | Called when a node is deleted.                            |
-| onSelectEdge        | func                    | true      | Called when an edge is selected.                          |
-| onCreateEdge        | func                    | true      | Called when an edge is created.                           |
-| onSwapEdge          | func                    | true      | Called when an edge 'target' is swapped.                  |
-| onDeleteEdge        | func                    | true      | Called when an edge is deleted.                           |
-| onBackgroundClick   | func                    | false     | Called when the background is clicked.                    |
-| onOverrideableClick | func                    | false     | Called when a node is clicked and returns true if the event should be overridden |
-| canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
-| canCreateEdge       | func                    | false     | Called before an edge is created.                         |
-| canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
-| afterRenderEdge      | func                    | false     | Called after an edge is rendered.                         |
-| renderNode          | func                    | false     | Called to render node geometry.                           |
-| renderNodeText      | func                    | false     | Called to render the node text                            |
-| renderDefs          | func                    | false     | Called to render svg definitions.                         |
-| renderBackground    | func                    | false     | Called to render svg background.                          |
-| readOnly            | bool                    | false     | Disables all graph editing interactions.                  |
-| maxTitleChars       | number                  | false     | Truncates node title characters.                          |
-| gridSize            | number                  | false     | Overall grid size.                                        |
-| gridSpacing         | number                  | false     | Grid spacing.                                             |
-| gridDotSize         | number                  | false     | Grid dot size.                                            |
-| minZoom             | number                  | false     | Minimum zoom percentage.                                  |
-| maxZoom             | number                  | false     | Maximum zoom percentage.                                  |
-| nodeSize            | number                  | false     | Node bbox size.                                           |
-| nodeHeight          | number                  | false     | Node bbox height. Takes precedence over `nodeSize`        |
-| nodeWidth           | number                  | false     | Node bbox width. Takes precedence over `nodeSize`         |
-| edgeHandleSize      | number                  | false     | Edge handle size.                                         |
-| edgeArrowSize       | number                  | false     | Edge arrow size.                                          |
-| zoomDelay           | number                  | false     | Delay before zoom occurs.                                 |
-| zoomDur             | number                  | false     | Duration of zoom transition.                              |
-| showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
-| layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
-| rotateEdgeHandle    | boolean                 | false     | Whether to rotate edge handle with edge when a node is moved |
-| centerNodeOnMove    | boolean                 | false     | Whether the node should be centered on cursor when moving a node    |
-| initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
+| Prop                   |          Type           | Required |                                      Notes                                       |
+| ---------------------- | :---------------------: | :------: | :------------------------------------------------------------------------------: |
+| nodeKey                |         string          |   true   |                      Key for D3 to update nodes(typ. UUID).                      |
+| nodes                  |          array          |   true   |                              Array of graph nodes.                               |
+| edges                  |          array          |   true   |                              Array of graph edges.                               |
+| selected               |         object          |   true   |                       The currently selected graph entity.                       |
+| nodeTypes              |         object          |   true   |                      Config object of available node types.                      |
+| nodeSubtypes           |         object          |   true   |                    Config object of available node subtypes.                     |
+| edgeTypes              |         object          |   true   |                      Config object of available edge types.                      |
+| onSelectNode           |          func           |   true   |                         Called when a node is selected.                          |
+| onCreateNode           |          func           |   true   |                          Called when a node is created.                          |
+| onUpdateNode           |          func           |   true   |                           Called when a node is moved.                           |
+| onDeleteNode           |          func           |   true   |                          Called when a node is deleted.                          |
+| onSelectEdge           |          func           |   true   |                         Called when an edge is selected.                         |
+| onCreateEdge           |          func           |   true   |                         Called when an edge is created.                          |
+| onSwapEdge             |          func           |   true   |                     Called when an edge 'target' is swapped.                     |
+| onDeleteEdge           |          func           |   true   |                         Called when an edge is deleted.                          |
+| onBackgroundClick      |          func           |  false   |                      Called when the background is clicked.                      |
+| onOverrideableClick    |          func           |  false   | Called when a node is clicked and returns true if the event should be overridden |
+| canDeleteNode          |          func           |  false   |                         Called before a node is deleted.                         |
+| canCreateEdge          |          func           |  false   |                        Called before an edge is created.                         |
+| canDeleteEdge          |          func           |  false   |                        Called before an edge is deleted.                         |
+| afterRenderEdge        |          func           |  false   |                        Called after an edge is rendered.                         |
+| renderNode             |          func           |  false   |                         Called to render node geometry.                          |
+| renderNodeText         |          func           |  false   |                          Called to render the node text                          |
+| renderDefs             |          func           |  false   |                        Called to render svg definitions.                         |
+| renderBackground       |          func           |  false   |                         Called to render svg background.                         |
+| readOnly               |          bool           |  false   |                     Disables all graph editing interactions.                     |
+| maxTitleChars          |         number          |  false   |                         Truncates node title characters.                         |
+| gridSize               |         number          |  false   |                                Overall grid size.                                |
+| gridSpacing            |         number          |  false   |                                  Grid spacing.                                   |
+| gridDotSize            |         number          |  false   |                                  Grid dot size.                                  |
+| minZoom                |         number          |  false   |                             Minimum zoom percentage.                             |
+| maxZoom                |         number          |  false   |                             Maximum zoom percentage.                             |
+| nodeSize               |         number          |  false   |                                 Node bbox size.                                  |
+| nodeHeight             |         number          |  false   |                Node bbox height. Takes precedence over `nodeSize`                |
+| nodeWidth              |         number          |  false   |                Node bbox width. Takes precedence over `nodeSize`                 |
+| edgeHandleSize         |         number          |  false   |                                Edge handle size.                                 |
+| nodeEdgeHandleSelector |         string          |  false   |            Define a css selector string to detect edge dragging from             |
+| edgeArrowSize          |         number          |  false   |                                 Edge arrow size.                                 |
+| zoomDelay              |         number          |  false   |                            Delay before zoom occurs.                             |
+| zoomDur                |         number          |  false   |                           Duration of zoom transition.                           |
+| showGraphControls      |         boolean         |  false   |                          Whether to show zoom controls.                          |
+| centerNodeOnMove       |         boolean         |  false   |                          Whether to center node on move                          |
+| layoutEngineType       | typeof LayoutEngineType |  false   |            Uses a pre-programmed layout engine, such as 'SnapToGrid'             |
+| rotateEdgeHandle       |         boolean         |  false   |           Whether to rotate edge handle with edge when a node is moved           |
+| centerNodeOnMove       |         boolean         |  false   |         Whether the node should be centered on cursor when moving a node         |
+| initialBBox            |      typeof IBBox       |  false   |         If specified, initial render graph using the given bounding box          |
+| CustomControls         |      GraphControls      |  false   |               Component class for rendering custom graph controls                |
+| shouldForceReRender    |          func           |  false   |                        Force a rerender of nodes & edges                         |
 
 ### onCreateNode
 You have access to d3 mouse event in `onCreateNode` function.

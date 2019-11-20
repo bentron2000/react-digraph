@@ -18,6 +18,7 @@
 import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
 import { type IEdge } from './edge';
 import { type INode } from './node';
+import GraphControls from './graph-controls';
 
 export type IBBox = {
   x: number,
@@ -87,13 +88,14 @@ export type IGraphViewProps = {
     isEdgeSelected: boolean
   ) => void,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
-  shouldForceReRender?: (
-    prevNode: any,
-    node: any,
-    prevEdge: any,
-    edge: any
-  ) => boolean,
+  shouldForceReRender?: (props: {
+    prevNode: INode,
+    node: INode,
+    prevEdge: IEdge,
+    edge: IEdge,
+  }) => boolean,
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
   initialBBox: IBBox,
+  CustomControls?: GraphControls,
 };
