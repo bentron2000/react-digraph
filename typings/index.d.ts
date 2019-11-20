@@ -107,6 +107,7 @@ declare module 'react-digraph-bentron' {
     edges: any[]
     edgeArrowSize?: number
     edgeHandleSize?: number
+    nodeEdgeHandleSelector?: string
     edgeTypes: any
     gridDotSize?: number
     gridSize?: number
@@ -127,9 +128,11 @@ declare module 'react-digraph-bentron' {
     showGraphControls?: boolean
     zoomDelay?: number
     zoomDur?: number
+    centerNodeOnMove?: boolean
     canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean
     canDeleteEdge?: (selected: any) => boolean
     canDeleteNode?: (selected: any) => boolean
+    onBackgroundClick?: (x: number, y: number, event: any) => void
     onCopySelected?: () => void
     onCreateEdge: (sourceNode: INode, targetNode: INode) => void
     onCreateNode: (x: number, y: number, event: any) => void
@@ -164,6 +167,21 @@ declare module 'react-digraph-bentron' {
       id: string | number,
       isSelected: boolean
     ) => any
+    shouldForceReRender?: (props: {
+      prevNode: INode
+      node: INode
+      prevEdge: IEdge
+      edge: IEdge
+    }) => boolean
+    CustomControls?: GraphControls
+  }
+
+  export type IGraphControlProps = {
+    maxZoom?: number
+    minZoom?: number
+    zoomLevel: number
+    zoomToFit: (event: SyntheticMouseEvent<HTMLButtonElement>) => void
+    modifyZoom: (delta: number) => boolean
   }
 
   export type IGraphInput = {
@@ -192,6 +210,9 @@ declare module 'react-digraph-bentron' {
   export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree'
 
   export const GraphView: React.ComponentClass<IGraphViewProps>
+
+  export type GraphControls = React.ComponentClass<IGraphControlProps>
+
   export type INodeMapNode = {
     node: INode
     originalArrIndex: number
